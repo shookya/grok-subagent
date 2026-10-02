@@ -98,6 +98,8 @@ include direct links, and prefer high-engagement original posts over ordinary we
 
 `grok_search` defaults to selectable Grok 4.7 and runs from a fresh temporary working directory outside the repository. It enables `x_search`, `web_search`, and `web_fetch` while explicitly denying known local read, shell, edit, and MCP tools. A result succeeds only when the CLI exits zero, emits one JSON object, ends with `end_turn`, and contains nonblank Markdown. The original Markdown is preserved exactly. Tool restrictions are not an operating-system sandbox, and native global Grok configuration may still load.
 
+The plugin manifest gives MCP tool transport 1,815 seconds. This host-level limit exceeds the maximum 1,800-second search deadline and leaves margin for up to eight seconds of bridge cleanup. It does not change an individual search's `timeout_seconds`.
+
 Callers that need machine-readable output can pass `json_schema`. The bridge rejects remote and file references before invocation, then validates the full result locally with the optional Python `jsonschema` package. Plain Markdown search has no Python package dependency.
 
 ## Common workflows
@@ -189,7 +191,7 @@ While Grok is running, the skill asks Codex to use `grok_status` for incremental
 - the official Grok Build CLI, authenticated locally;
 - Git when using writing workers.
 
-Last live-verified environment (2026-08-03): macOS, Grok CLI `0.2.114`, plugin `0.4.0`, `grok-4.5`, and a browser-authenticated SuperGrok account. The 0.4.1 completion contract, process cleanup, and MCP responsiveness were deterministically verified with executable fake CLIs on 2026-10-01; a release live check remains separate. The plugin follows authentication methods supported by the official CLI, including browser login and `XAI_API_KEY`, without reading or managing auth files itself.
+Local live checks on 2026-10-01 passed on macOS with Grok CLI `1.0.46`, plugin `0.4.1`, and requested model `grok-4.7`. The checks covered concurrent X searches, empty results, model rejection, structured output, MCP responsiveness, and synthetic local-file restrictions. The 0.4.2 completion contract and process cleanup also have deterministic executable-fixture tests. These local checks do not certify a published release or the separate project-agent route. The plugin follows authentication methods supported by the official CLI, including browser login and `XAI_API_KEY`, without reading or managing auth files itself.
 
 Official references: [Grok Build overview](https://docs.x.ai/build/overview), [Headless & ACP](https://docs.x.ai/build/cli/headless-scripting), and [CLI reference](https://docs.x.ai/build/cli/reference).
 

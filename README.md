@@ -99,6 +99,8 @@ flowchart LR
 
 `grok_search` 默认使用可显式选择的 Grok 4.7，在仓库外的新临时工作目录中运行，只启用 `x_search`、`web_search` 和 `web_fetch`，并显式拒绝已知本地读取、Shell、编辑和 MCP 工具。只有 CLI 正常退出、返回单一 JSON 对象、以 `end_turn` 结束且包含非空 Markdown 时，结果才会标记成功；原始 Markdown 会逐字保留。工具限制不是操作系统沙箱，原生 Grok 全局配置仍可能加载。
 
+插件清单将 MCP 工具传输超时设为 1815 秒。这个宿主层上限高于搜索允许的 1800 秒最大 deadline，并为 Bridge 最长 8 秒的清理留出余量；它不会改变每次搜索自身的 `timeout_seconds`。
+
 需要机器可读结果时，可以传入 `json_schema`。Bridge 会在调用前拒绝远程或文件引用，并使用可选的 Python `jsonschema` 包在本地校验完整结果。普通 Markdown 搜索不需要该依赖。
 
 ### 独立排查故障
@@ -188,7 +190,7 @@ Grok 运行期间，Skill 会让 Codex 用 `grok_status` 做最长 30 秒的增�
 - 已安装并登录官方 Grok Build CLI；
 - 写入模式需要 Git。
 
-最近的 live 验证环境（2026-08-03）：macOS、Grok CLI `0.2.114`、插件 `0.4.0`、`grok-4.5`，以及通过浏览器登录的 SuperGrok 账号。`0.4.1` 的搜索完成契约、进程清理和 MCP 响应性已在 2026-10-01 使用可执行假 CLI 做确定性验证；发布前 live 验证仍需单独执行。插件沿用官方 CLI 支持的认证方式，例如浏览器登录或 `XAI_API_KEY`，但不会自行读取或管理认证文件。
+2026-10-01 的本地 live 检查在 macOS、Grok CLI `1.0.46`、插件 `0.4.1` 和请求模型 `grok-4.7` 下通过，覆盖并行 X 搜索、空结果、模型拒绝、结构化输出、MCP 响应性和合成文件访问限制。`0.4.2` 的搜索完成契约与进程清理也有可执行假 CLI 的确定性测试。这些本地检查不代表已发布版本或独立项目 Agent 路径的认证。插件沿用官方 CLI 支持的认证方式，例如浏览器登录或 `XAI_API_KEY`，但不会自行读取或管理认证文件。
 
 官方参考：[Grok Build](https://docs.x.ai/build/overview)、[ACP 与无头模式](https://docs.x.ai/build/cli/headless-scripting)、[CLI 参数](https://docs.x.ai/build/cli/reference)。
 

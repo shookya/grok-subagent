@@ -53,6 +53,8 @@ Python owns the CLI deadline, process group, result classification, and version-
 
 Node transports the request asynchronously and validates only the outer success/failure contract, so MCP ping and unrelated calls remain responsive. On shutdown it gives Python bounded cleanup time before forcing the bridge process to exit. Python sends TERM and then KILL to the Grok process group when needed.
 
+The plugin manifest gives an MCP tool call 1,815 seconds before host transport cancellation. Search keeps its own deadline, up to 1,800 seconds, and the Node bridge reserves up to eight additional seconds for Python cleanup. The manifest limit is longer so transport does not preempt the owned cleanup path.
+
 The search bridge is adapted from the MIT-licensed `sudoHG/codex-grok-search` project. Tool restrictions and compatibility switches reduce local exposure but do not provide an operating-system sandbox or prove that native global Grok configuration did not load. Codex remains responsible for framing the research task and synthesizing the final user-facing answer.
 
 ## Interactive handoff mode
@@ -91,5 +93,6 @@ This is defense in depth, not a claim of perfect isolation. See [SECURITY.md](SE
 - 30-minute maximum prompt timeout;
 - 30-second maximum blocking result wait.
 - 180-second default search deadline and 16 MiB combined search-output limit.
+- 1,815-second MCP host tool timeout, covering the 1,800-second maximum search deadline and bridge cleanup.
 
 Closing the MCP server terminates all child Grok processes.

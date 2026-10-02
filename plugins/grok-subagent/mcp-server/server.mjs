@@ -8,7 +8,7 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "0.4.1";
+const VERSION = "0.4.2";
 const MAX_AGENTS = 3;
 const MAX_RETAINED_FAILED_AGENTS = 3;
 const MAX_TEXT = 120_000;

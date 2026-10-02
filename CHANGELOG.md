@@ -2,13 +2,14 @@
 
 All notable changes to this project will be documented here.
 
-## 0.4.1 - 2026-10-01
+## 0.4.2 - 2026-10-01
 
 ### Fixed
 
 - Search success now requires one valid Grok JSON envelope, exit code zero, `stopReason: "end_turn"`, and nonblank Markdown. Cancelled, malformed, empty, and nonzero results are retained as failed diagnostics instead of being reported as complete.
 - The MCP search bridge now uses asynchronous child processes, keeps ping and other requests responsive, and rejects contradictions between the Python result envelope and process exit status.
 - Search timeout, MCP stdin close, SIGINT, and SIGTERM now terminate the owned Grok process group with bounded TERM/KILL cleanup.
+- The plugin MCP manifest now allows 1,815 seconds per tool call so a maximum 1,800-second search can finish its bounded bridge cleanup before the host cancels transport.
 
 ### Changed
 

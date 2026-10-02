@@ -108,7 +108,7 @@ async function exerciseShutdown(mode) {
       capabilities: {},
       clientInfo: { name: "search-contract-test", version: "1" }
     });
-    assert.equal(initialized.serverInfo.version, "0.4.1");
+    assert.equal(initialized.serverInfo.version, "0.4.2");
 
     const search = client.request("tools/call", {
       name: "grok_search",

@@ -459,7 +459,22 @@ class SearchContractTests(unittest.TestCase):
                 process.send_signal(signal.SIGINT)
                 stdout, stderr = process.communicate(timeout=10)
                 result = json.loads(stdout)
-                self.assertEqual(process.returncode, 130, stderr)
+                self.assertEqual(
+                    process.returncode,
+                    130,
+                    json.dumps(
+                        {
+                            "stdout": stdout,
+                            "stderr": stderr,
+                            "result": result,
+                            "bridge_pid": process.pid,
+                            "bridge_returncode": process.returncode,
+                            "cli_pid": cli_pid,
+                            "cli_gone": process_is_gone(cli_pid),
+                        },
+                        indent=2,
+                    ),
+                )
                 self.assertEqual(result["status"], "failed")
                 self.assertEqual(result["error"], "interrupted")
                 self.assertTrue(process_is_gone(cli_pid))

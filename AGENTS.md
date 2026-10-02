@@ -41,7 +41,7 @@ python3 plugins/grok-subagent/scripts/run_search.py run --platform x --depth qui
 
 ## 当前状态与下一步
 
-- 当前源版本：`0.4.1`，包含检查式搜索工具
+- 当前源版本：`0.4.2`，包含检查式搜索工具
 - 已安装缓存可能仍是 `0.4.0`；安装或升级后必须新建 Codex 任务
-- 公开 GitHub Release 仍停在 `v0.3.1`；若要对外安装路径解析到 0.4.1，需要补 tag/Release
+- 公开 GitHub Release 仍停在 `v0.3.1`；若要对外安装路径解析到 0.4.2，需要补 tag/Release
 - 新任务中优先：项目审查用 `grok_spawn_readonly`；X/Reddit/实时公开研究用 `grok_search`
