@@ -132,6 +132,60 @@ class SearchContractTests(unittest.TestCase):
             for signum, handler in previous.items():
                 signal.signal(signum, handler)
 
+    def test_process_group_signal_accepts_permission_race_only_after_absence_probe(self):
+        module = load_search_module()
+        process = mock.Mock(pid=1234)
+        process.poll.return_value = -signal.SIGTERM
+        with mock.patch.object(
+            module.os,
+            "killpg",
+            side_effect=[PermissionError(1, "Operation not permitted"), ProcessLookupError()],
+        ) as killpg:
+            module._signal_process_group(process, signal.SIGKILL)
+        self.assertEqual(killpg.call_args_list, [mock.call(1234, signal.SIGKILL), mock.call(1234, 0)])
+        process.poll.assert_called_once_with()
+
+    def test_process_group_signal_retries_transient_permission_failure(self):
+        module = load_search_module()
+        process = mock.Mock(pid=1234)
+        with mock.patch.object(
+            module.os,
+            "killpg",
+            side_effect=[PermissionError(1, "Operation not permitted"), None, None],
+        ) as killpg, mock.patch.object(module.time, "sleep") as sleep:
+            module._signal_process_group(process, signal.SIGKILL)
+        self.assertEqual(
+            killpg.call_args_list,
+            [mock.call(1234, signal.SIGKILL), mock.call(1234, 0), mock.call(1234, signal.SIGKILL)],
+        )
+        process.poll.assert_called_once_with()
+        sleep.assert_called_once()
+
+    def test_process_group_signal_rejects_persistent_permission_failure_for_live_group(self):
+        module = load_search_module()
+        process = mock.Mock(pid=1234)
+        denied = PermissionError(1, "Operation not permitted")
+        with mock.patch.object(module.time, "monotonic", side_effect=[0.0, 0.49, 0.5]), mock.patch.object(
+            module.time, "sleep"
+        ) as sleep, mock.patch.object(
+            module.os,
+            "killpg",
+            side_effect=[denied, denied, denied, denied],
+        ) as killpg:
+            with self.assertRaises(PermissionError):
+                module._signal_process_group(process, signal.SIGKILL)
+        self.assertEqual(
+            killpg.call_args_list,
+            [
+                mock.call(1234, signal.SIGKILL),
+                mock.call(1234, 0),
+                mock.call(1234, signal.SIGKILL),
+                mock.call(1234, 0),
+            ],
+        )
+        self.assertEqual(process.poll.call_count, 2)
+        sleep.assert_called_once_with(0.01)
+
     def test_cancelled_answer_is_not_success(self):
         code, result, partial = self.invoke(json.dumps({"text": "unfinished answer", "stopReason": "cancelled"}))
         self.assertFalse(result["ok"])

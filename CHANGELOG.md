@@ -10,6 +10,7 @@ All notable changes to this project will be documented here.
 - The MCP search bridge now uses asynchronous child processes, keeps ping and other requests responsive, and rejects contradictions between the Python result envelope and process exit status.
 - Search timeout, MCP stdin close, SIGINT, and SIGTERM now terminate the owned Grok process group with bounded TERM/KILL cleanup.
 - The plugin MCP manifest now allows 1,815 seconds per tool call so a maximum 1,800-second search can finish its bounded bridge cleanup before the host cancels transport.
+- Process-group cleanup now retries transient macOS permission errors briefly and accepts them only once the group is confirmed absent. Persistent permission errors remain explicit failures.
 
 ### Changed
 

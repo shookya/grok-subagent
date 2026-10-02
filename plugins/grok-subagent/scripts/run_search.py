@@ -339,10 +339,25 @@ Guidance:
 
 
 def _signal_process_group(process: subprocess.Popen[bytes], signum: int) -> None:
-    try:
-        os.killpg(process.pid, signum)
-    except ProcessLookupError:
-        pass
+    permission_deadline = time.monotonic() + PIPE_GRACE_SECONDS
+    while True:
+        try:
+            os.killpg(process.pid, signum)
+            return
+        except ProcessLookupError:
+            return
+        except PermissionError:
+            process.poll()
+            try:
+                os.killpg(process.pid, 0)
+            except ProcessLookupError:
+                return
+            except PermissionError:
+                pass
+            now = time.monotonic()
+            if now >= permission_deadline:
+                raise
+            time.sleep(min(0.01, permission_deadline - now))
 
 
 def _process_group_exists(process: subprocess.Popen[bytes]) -> bool:
